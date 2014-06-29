@@ -42,7 +42,7 @@ class TileRepository
   def put_tile(tile)
     if tile.length > 0
       @tiles << tile
-      @tiles.sort! { |l, r| r.length <=> l.length }
+      @tiles.sort! { |l, r| l.length <=> r.length }
     end
   end
 end
