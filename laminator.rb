@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'prawn'
+require 'prawn/measurement_extensions'
+
 require_relative 'lib/laminator'
 
 class Floor
@@ -86,15 +88,19 @@ remainder = floor.length % format.length
   rows << row
 end
 
-Prawn::Document.generate('tiles.pdf') do
-  scale_factor = [bounds.height / floor.width, bounds.width / floor.length].min
-  scale(scale_factor, origin: [0, 0]) do
-    stroke_rectangle [0, floor.width], floor.length, floor.width
+Prawn::Document.generate('tiles.pdf') do |pdf|
+  scale_factor = [pdf.bounds.height / floor.width, pdf.bounds.width / floor.length].min
+
+  pdf.scale(scale_factor, origin: [0, 0]) do
+    pdf.line_width = 0.5.mm / scale_factor
+    pdf.stroke_rectangle [0, floor.width], floor.length, floor.width
+
+    pdf.line_width = 0.2.mm / scale_factor
     y = 0
     rows.each do |row|
       x = 0
       row.tiles.each do |tile|
-        stroke_rectangle [x, y + tile.width], tile.length, tile.width
+        pdf.stroke_rectangle [x, y + tile.width], tile.length, tile.width
         x += tile.length
       end
       y += row.width
