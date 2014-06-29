@@ -62,18 +62,22 @@ end
 format = TileFormat.new(length: 1290.0, width: 190.0)
 factory = TileFactory.new(tile_format: format)
 repository = TileRepository.new(factory: factory, kerf: 4)
-floor = Floor.new(length: 5145.0, width: 4760.0)
+floor = Floor.new(length: 5145.0, width: 4750.0)
 
 rows = []
 
+first_len = 0
 remainder = floor.length % format.length
 (Float(floor.width)/format.width).ceil.times do |n|
   row = Row.new(length: floor.length, width: format.width)
+
   #row.add_tile(repository.get_longest_tile(length: row.space_left))
   #while row.space_left > 0 do
   #  row.add_tile(repository.get_tile(length: row.space_left))
   #end
-  first_len = remainder / 2.0 + offset(format.length, [0, 120, 240], n)
+
+  #first_len = remainder / 2.0 + offset(format.length, [0, 120, 240], n)
+  first_len = (200 + first_len + (Random.rand * format.length / 2)).ceil % format.length
   row.add_tile(repository.get_tile(length: first_len % format.length))
   while row.space_left > 0 do
     row.add_tile(repository.get_tile(length: row.space_left))
@@ -99,3 +103,4 @@ Prawn::Document.generate('tiles.pdf') do
 end
 
 puts factory.tile_count
+p repository
