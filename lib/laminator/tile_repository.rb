@@ -5,19 +5,14 @@ class TileRepository
     @tiles = []
   end
   
-  def get_tile(length:)
-    tile = existing_or_new(@tiles.find { |t| t.length >= length })
-    cut_tile(tile, length)
+  def get_tile(length:, side:)
+    tile = existing_or_new(@tiles.find { |t| t.length >= length and t.is_placeable_on?(side) })
+    cut_tile(tile, length, side)
   end
 
-  def get_shortest_tile(length:)
-    tile = existing_or_new(@tiles.first)
-    cut_tile(tile, length)
-  end
-
-  def get_longest_tile(length:)
-    tile = existing_or_new(@tiles.last)
-    cut_tile(tile, length)
+  def get_shortest_tile(length:, side:)
+    tile = existing_or_new(@tiles.find { |t| t.is_placeable_on?(side) })
+    cut_tile(tile, length, side)
   end
 
   def inspect
@@ -30,10 +25,23 @@ class TileRepository
     @tiles.delete(tile) || @factory.new_tile
   end
 
-  def cut_tile(tile, max_length)
+  def merge_cut(cut1, cut2)
+    if cut1 == cut2
+      cut1
+    elsif cut1 == :none
+      cut2
+    elsif cut2 == :none
+      cut1
+    else
+      :both
+    end
+  end
+
+  def cut_tile(tile, max_length, side)
     if tile.length > max_length
-      put_tile(Tile.new(number: tile.number, width: tile.width, length: tile.length - max_length - @kerf))
-      Tile.new(number: tile.number, width: tile.width, length: max_length)
+      remaining_tile = Tile.new(number: tile.number, width: tile.width, length: tile.length - max_length - @kerf, cut: merge_cut(tile.cut, side == :right ? :left : :right))
+      put_tile(remaining_tile)
+      Tile.new(number: tile.number, width: tile.width, length: max_length, cut: merge_cut(tile.cut, side))
     else
       tile
     end

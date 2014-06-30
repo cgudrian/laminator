@@ -2,11 +2,17 @@ class Tile
   attr_reader :number
   attr_reader :width
   attr_reader :length
+  attr_reader :cut
   
-  def initialize(number: , width: , length:)
+  def initialize(number: , width: , length:, cut: :none)
     @number = number
-    @width = width
-    @length = length
+    @width = Float(width)
+    @length = Float(length)
+    @cut = cut
+  end
+
+  def is_placeable_on?(side)
+    @cut == :none or @cut == side
   end
 
   def to_s
@@ -14,6 +20,6 @@ class Tile
   end
 
   def inspect
-    "[#{number}:#{@length}]"
+    "#{@number}:#{@length}:#{@cut}"
   end
 end

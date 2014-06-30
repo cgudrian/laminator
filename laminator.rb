@@ -10,8 +10,8 @@ class Floor
   attr_reader :length
   
   def initialize(width: , length:)
-    @width = width
-    @length = length
+    @width = Float(width)
+    @length = Float(length)
   end
 end
 
@@ -22,9 +22,9 @@ class Row
   attr_reader :tiles
   
   def initialize(length: , width:)
-    @length = length
-    @width = width
-    @space_left = length
+    @length = Float(length)
+    @width = Float(width)
+    @space_left = @length
     @tiles = []
   end
 
@@ -57,38 +57,40 @@ end
 class BalancedStrategy < Strategy
 end
 
-def offset(length, phases, index)
-  length * phases[index % phases.count] / 360.0
-end
-
 format = TileFormat.new(length: 1290.0, width: 190.0)
 factory = TileFactory.new(tile_format: format)
 repository = TileRepository.new(factory: factory, kerf: 4)
-floor = Floor.new(length: 5145.0, width: 4750.0)
+floor = Floor.new(length: 5145, width: 4750)
 
 rows = []
 
-first_len = 0
 remainder = floor.length % format.length
-(Float(floor.width)/format.width).ceil.times do |n|
+
+number_of_rows = (floor.width / format.width).ceil
+
+modulus = 5
+min_length = 200
+min_diff = 100
+first_length = 0
+
+number_of_rows.times do |n|
   row = Row.new(length: floor.length, width: format.width)
 
-  #row.add_tile(repository.get_longest_tile(length: row.space_left))
-  #while row.space_left > 0 do
-  #  row.add_tile(repository.get_tile(length: row.space_left))
-  #end
-
-  #first_len = remainder / 2.0 + offset(format.length, [0, 120, 240], n)
-  first_len = (200 + first_len + (Random.rand * format.length / 2)).ceil % format.length
-  row.add_tile(repository.get_tile(length: first_len % format.length))
-  while row.space_left > 0 do
-    row.add_tile(repository.get_tile(length: row.space_left))
-  end
+  #first_length = (remainder / 2 + format.length / modulus * ((n + 2) % modulus)) % format.length
+  begin
+    len = Random.rand * format.length
+    len = (len / 5).round * 5
+  end until ((len - first_length).abs) >= min_diff and (len >= min_length) and (floor.length - len) % format.length >= min_length
+  first_length = len
+  
+  row.add_tile(repository.get_tile(length: first_length, side: :left))
+  (row.space_left / format.length).floor.times { row.add_tile(factory.new_tile) }
+  row.add_tile(repository.get_tile(length: row.space_left, side: :right))
 
   rows << row
 end
 
-Prawn::Document.generate('tiles.pdf') do |pdf|
+Prawn::Document.generate('tiles.pdf', page_layout: floor.length > floor.width ? :landscape : :portrait) do |pdf|
   scale_factor = [pdf.bounds.height / floor.width, pdf.bounds.width / floor.length].min
 
   pdf.scale(scale_factor, origin: [0, 0]) do
@@ -101,6 +103,15 @@ Prawn::Document.generate('tiles.pdf') do |pdf|
       x = 0
       row.tiles.each do |tile|
         pdf.stroke_rectangle [x, y + tile.width], tile.length, tile.width
+        tile_text = case tile.cut
+                    when :left then "#{tile.number}R"
+                    when :right then "#{tile.number}L"
+                    when :none then "#{tile.number}"
+                    end
+        begin
+          pdf.text_box tile_text, at: [x, y + tile.width], width: tile.length, valign: :center, height: tile.width, align: :center, size: 3.mm / scale_factor, overflow: :shrink_to_fit
+        rescue
+        end
         x += tile.length
       end
       y += row.width
