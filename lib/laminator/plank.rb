@@ -5,10 +5,10 @@ module Laminator
     attr_reader :length
     attr_reader :cut
 
-    def initialize(number:, width:, length:, cut: :none)
+    def initialize(number:, size:, cut: :none)
       @number = number
-      @width = Float(width)
-      @length = Float(length)
+      @width = Float(size.width)
+      @length = Float(size.length)
       @cut = cut
     end
 

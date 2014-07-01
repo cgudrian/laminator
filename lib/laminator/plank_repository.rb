@@ -40,9 +40,11 @@ module Laminator
 
     def cut_plank(plank, max_length, side)
       if plank.length > max_length
-        other_plank = Plank.new(number: plank.number, width: plank.width, length: plank.length - max_length - @kerf, cut: merge_cut(plank.cut, side == :right ? :left : :right))
-        put_plank(other_plank)
-        Plank.new(number: plank.number, width: plank.width, length: max_length, cut: merge_cut(plank.cut, side))
+        remaining_plank = Plank.new(number: plank.number,
+                                    size: PlankSize.new(width: plank.width, length: plank.length - max_length - @kerf),
+                                    cut: merge_cut(plank.cut, side == :right ? :left : :right))
+        put_plank(remaining_plank)
+        Plank.new(number: plank.number, size: PlankSize.new(width: plank.width, length: max_length), cut: merge_cut(plank.cut, side))
       else
         plank
       end

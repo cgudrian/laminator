@@ -55,16 +55,17 @@ end
 class BalancedStrategy < Strategy
 end
 
-format = Laminator::PlankFormat.new(length: 1290.0, width: 190.0)
-factory = Laminator::PlankFactory.new(plank_format: format)
+
+size = Laminator::PlankSize.new(length: 1290.0, width: 190.0)
+factory = Laminator::PlankFactory.new(plank_size: size)
 repository = Laminator::PlankRepository.new(factory: factory, kerf: 4)
 floor = Floor.new(length: 5145, width: 4750)
 
 rows = []
 
-#remainder = floor.length % format.length
+#remainder = floor.length % size.length
 
-number_of_rows = (floor.width / format.width).ceil
+number_of_rows = (floor.width / size.width).ceil
 
 #modulus = 5
 min_length = 200
@@ -72,17 +73,17 @@ min_diff = 100
 first_length = 0
 
 number_of_rows.times do |n|
-  row = Row.new(length: floor.length, width: format.width)
+  row = Row.new(length: floor.length, width: size.width)
 
-  #first_length = (remainder / 2 + format.length / modulus * ((n + 2) % modulus)) % format.length
+  #first_length = (remainder / 2 + size.length / modulus * ((n + 2) % modulus)) % size.length
   begin
-    len = Random.rand * format.length
+    len = Random.rand * size.length
     len = (len / 5).round * 5
-  end until ((len - first_length).abs) >= min_diff and (len >= min_length) and (floor.length - len) % format.length >= min_length
+  end until ((len - first_length).abs) >= min_diff and (len >= min_length) and (floor.length - len) % size.length >= min_length
   first_length = len
 
   row.add_tile(repository.get_plank(length: first_length, side: :left))
-  (row.space_left / format.length).floor.times { row.add_tile(factory.new_plank) }
+  (row.space_left / size.length).floor.times { row.add_tile(factory.new_plank) }
   row.add_tile(repository.get_plank(length: row.space_left, side: :right))
 
   rows << row

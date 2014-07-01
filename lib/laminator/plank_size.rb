@@ -1,6 +1,6 @@
 module Laminator
-  class PlankFormat
-    attr_reader :width
+  class PlankSize
+  attr_reader :width
     attr_reader :length
 
     def initialize(width:, length:)
