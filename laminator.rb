@@ -43,6 +43,16 @@ class Row
 end
 
 class Strategy
+  def initialize(factory:, repository:)
+    @factory = factory
+    @repository = repository
+  end
+
+  def fill_row(row, first_length:)
+    row.add_plank(@repository.get_plank(length: first_length, side: :left))
+    (row.space_left / @factory.plank_length).floor.times { row.add_plank(@factory.new_plank) }
+    row.add_plank(@repository.get_plank(length: row.space_left, side: :right))
+  end
 end
 
 class LeastWasteStrategy < Strategy
@@ -70,6 +80,8 @@ min_length = 200
 min_diff = 100
 first_length = 0
 
+strategy = Strategy.new(factory: factory, repository: repository)
+
 number_of_rows.times do |n|
   row = Row.new(length: floor.length, width: plank_width)
 
@@ -80,9 +92,7 @@ number_of_rows.times do |n|
   end until ((len - first_length).abs) >= min_diff and (len >= min_length) and (floor.length - len) % plank_length >= min_length
   first_length = len
 
-  row.add_plank(repository.get_plank(length: first_length, side: :left))
-  (row.space_left / plank_length).floor.times { row.add_plank(factory.new_plank) }
-  row.add_plank(repository.get_plank(length: row.space_left, side: :right))
+  strategy.fill_row(row, first_length: first_length)
 
   rows << row
 end
@@ -115,6 +125,8 @@ Prawn::Document.generate('tiles.pdf', page_layout: floor.length > floor.width ? 
     end
   end
 end
+
+system 'open tiles.pdf'
 
 puts factory.plank_count
 p repository

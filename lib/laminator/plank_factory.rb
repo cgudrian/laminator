@@ -1,6 +1,8 @@
 module Laminator
   class PlankFactory
     attr_reader :plank_count
+    attr_reader :plank_width
+    attr_reader :plank_length
 
     def initialize(plank_length:, plank_width:)
       @plank_count = 0
