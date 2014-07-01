@@ -11,11 +11,6 @@ module Laminator
       cut_plank(plank, length, side)
     end
 
-    def get_shortest_plank(length:, side:)
-      plank = existing_or_new(@planks.find { |p| p.is_placeable_on?(side) })
-      cut_plank(plank, length, side)
-    end
-
     def inspect
       @planks.map(&:inspect)
     end
@@ -26,8 +21,8 @@ module Laminator
       @planks.delete(plank) || @factory.new_plank
     end
 
-    def merge_cut(cut1, cut2)
-      if cut1 == cut2
+    def merge_cuts(cut1, cut2)
+    if cut1 == cut2
         cut1
       elsif cut1 == :none
         cut2
@@ -42,9 +37,9 @@ module Laminator
       if plank.length > max_length
         remaining_plank = Plank.new(number: plank.number,
                                     size: PlankSize.new(width: plank.width, length: plank.length - max_length - @kerf),
-                                    cut: merge_cut(plank.cut, side == :right ? :left : :right))
+                                    cut: merge_cuts(plank.cut, side == :right ? :left : :right))
         put_plank(remaining_plank)
-        Plank.new(number: plank.number, size: PlankSize.new(width: plank.width, length: max_length), cut: merge_cut(plank.cut, side))
+        Plank.new(number: plank.number, size: PlankSize.new(width: plank.width, length: max_length), cut: merge_cuts(plank.cut, side))
       else
         plank
       end

@@ -32,13 +32,9 @@ class Row
     @planks.count
   end
 
-  def add_tile(tile)
-    @space_left -= tile.length
-    @planks << tile
-  end
-
-  def to_s
-    "Row with #{plank_count} tiles"
+  def add_plank(plank)
+    @space_left -= plank.length
+    @planks << plank
   end
 
   def inspect
@@ -82,9 +78,9 @@ number_of_rows.times do |n|
   end until ((len - first_length).abs) >= min_diff and (len >= min_length) and (floor.length - len) % size.length >= min_length
   first_length = len
 
-  row.add_tile(repository.get_plank(length: first_length, side: :left))
-  (row.space_left / size.length).floor.times { row.add_tile(factory.new_plank) }
-  row.add_tile(repository.get_plank(length: row.space_left, side: :right))
+  row.add_plank(repository.get_plank(length: first_length, side: :left))
+  (row.space_left / size.length).floor.times { row.add_plank(factory.new_plank) }
+  row.add_plank(repository.get_plank(length: row.space_left, side: :right))
 
   rows << row
 end
