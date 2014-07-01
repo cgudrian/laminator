@@ -101,16 +101,9 @@ Prawn::Document.generate('tiles.pdf', page_layout: floor.length > floor.width ? 
       x = 0
       row.planks.each do |plank|
         pdf.stroke_rectangle [x, y + plank.width], plank.length, plank.width
-        tile_text = case plank.cut
-                    when :left
-                      "#{plank.number}R"
-                    when :right
-                      "#{plank.number}L"
-                    when :none
-                      "#{plank.number}"
-                    else
-                      "?#{plank.number}"
-                    end
+        tile_text = "#{plank.number}"
+        tile_text = '(' + tile_text if plank.cut_on_left?
+        tile_text = tile_text + ')' if plank.cut_on_right?
         begin
           pdf.text_box tile_text, at: [x, y + plank.width], width: plank.length, valign: :center, height: plank.width, align: :center, size: 3.mm / scale_factor, overflow: :shrink_to_fit
         rescue
