@@ -8,8 +8,8 @@ require_relative 'lib/laminator'
 class Floor
   attr_reader :width
   attr_reader :length
-  
-  def initialize(width: , length:)
+
+  def initialize(width:, length:)
     @width = Float(width)
     @length = Float(length)
   end
@@ -19,36 +19,34 @@ class Row
   attr_reader :width
   attr_reader :length
   attr_reader :space_left
-  attr_reader :tiles
-  
-  def initialize(length: , width:)
+  attr_reader :planks
+
+  def initialize(length:, width:)
     @length = Float(length)
     @width = Float(width)
     @space_left = @length
-    @tiles = []
+    @planks = []
   end
 
-  def tile_count
-    @tiles.count
+  def plank_count
+    @planks.count
   end
 
   def add_tile(tile)
     @space_left -= tile.length
-    @tiles << tile
+    @planks << tile
   end
 
   def to_s
-    "Row with #{tile_count} tiles"
+    "Row with #{plank_count} tiles"
   end
 
   def inspect
-    @tiles.map(&:inspect)
-  end  
+    @planks.map(&:inspect)
+  end
 end
 
 class Strategy
-  def initialize(floor: , tile_format: )
-  end
 end
 
 class LeastWasteStrategy < Strategy
@@ -57,18 +55,18 @@ end
 class BalancedStrategy < Strategy
 end
 
-format = TileFormat.new(length: 1290.0, width: 190.0)
-factory = TileFactory.new(tile_format: format)
-repository = TileRepository.new(factory: factory, kerf: 4)
+format = Laminator::PlankFormat.new(length: 1290.0, width: 190.0)
+factory = Laminator::PlankFactory.new(plank_format: format)
+repository = Laminator::PlankRepository.new(factory: factory, kerf: 4)
 floor = Floor.new(length: 5145, width: 4750)
 
 rows = []
 
-remainder = floor.length % format.length
+#remainder = floor.length % format.length
 
 number_of_rows = (floor.width / format.width).ceil
 
-modulus = 5
+#modulus = 5
 min_length = 200
 min_diff = 100
 first_length = 0
@@ -82,10 +80,10 @@ number_of_rows.times do |n|
     len = (len / 5).round * 5
   end until ((len - first_length).abs) >= min_diff and (len >= min_length) and (floor.length - len) % format.length >= min_length
   first_length = len
-  
-  row.add_tile(repository.get_tile(length: first_length, side: :left))
-  (row.space_left / format.length).floor.times { row.add_tile(factory.new_tile) }
-  row.add_tile(repository.get_tile(length: row.space_left, side: :right))
+
+  row.add_tile(repository.get_plank(length: first_length, side: :left))
+  (row.space_left / format.length).floor.times { row.add_tile(factory.new_plank) }
+  row.add_tile(repository.get_plank(length: row.space_left, side: :right))
 
   rows << row
 end
@@ -99,18 +97,25 @@ Prawn::Document.generate('tiles.pdf', page_layout: floor.length > floor.width ? 
 
     pdf.line_width = 0.2.mm / scale_factor
     y = 0
+
     rows.each do |row|
       x = 0
-      row.tiles.each do |tile|
+      row.planks.each do |tile|
         pdf.stroke_rectangle [x, y + tile.width], tile.length, tile.width
         tile_text = case tile.cut
-                    when :left then "#{tile.number}R"
-                    when :right then "#{tile.number}L"
-                    when :none then "#{tile.number}"
+                    when :left
+                      "#{tile.number}R"
+                    when :right
+                      "#{tile.number}L"
+                    when :none
+                      "#{tile.number}"
+                    else
+                      "?#{tile.number}"
                     end
         begin
           pdf.text_box tile_text, at: [x, y + tile.width], width: tile.length, valign: :center, height: tile.width, align: :center, size: 3.mm / scale_factor, overflow: :shrink_to_fit
         rescue
+          puts 'Some text could not be printed.'
         end
         x += tile.length
       end
@@ -119,5 +124,5 @@ Prawn::Document.generate('tiles.pdf', page_layout: floor.length > floor.width ? 
   end
 end
 
-puts factory.tile_count
+puts factory.plank_count
 p repository

@@ -1,4 +1,4 @@
-require_relative 'laminator/tile'
-require_relative 'laminator/tile_format'
-require_relative 'laminator/tile_factory'
-require_relative 'laminator/tile_repository'
+require_relative 'laminator/plank'
+require_relative 'laminator/plank_format'
+require_relative 'laminator/plank_factory'
+require_relative 'laminator/plank_repository'
