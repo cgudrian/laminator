@@ -2,14 +2,15 @@ module Laminator
   class PlankFactory
     attr_reader :plank_count
 
-    def initialize(plank_size:)
+    def initialize(plank_length:, plank_width:)
       @plank_count = 0
-      @plank_size = plank_size
+      @plank_length = plank_length
+      @plank_width = plank_width
     end
 
     def new_plank
       @plank_count += 1
-      Plank.new(number: @plank_count, size: @plank_size)
+      Plank.new(number: @plank_count, length: @plank_length, width: @plank_width)
     end
   end
 end

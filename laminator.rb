@@ -52,8 +52,10 @@ class BalancedStrategy < Strategy
 end
 
 
-size = Laminator::PlankSize.new(length: 1290.0, width: 190.0)
-factory = Laminator::PlankFactory.new(plank_size: size)
+plank_length = 1290.0
+plank_width = 190.0
+
+factory = Laminator::PlankFactory.new(plank_length: plank_length, plank_width: plank_width)
 repository = Laminator::PlankRepository.new(factory: factory, kerf: 4)
 floor = Floor.new(length: 5145, width: 4750)
 
@@ -61,7 +63,7 @@ rows = []
 
 #remainder = floor.length % size.length
 
-number_of_rows = (floor.width / size.width).ceil
+number_of_rows = (floor.width / plank_width).ceil
 
 #modulus = 5
 min_length = 200
@@ -69,17 +71,17 @@ min_diff = 100
 first_length = 0
 
 number_of_rows.times do |n|
-  row = Row.new(length: floor.length, width: size.width)
+  row = Row.new(length: floor.length, width: plank_width)
 
   #first_length = (remainder / 2 + size.length / modulus * ((n + 2) % modulus)) % size.length
   begin
-    len = Random.rand * size.length
+    len = Random.rand * plank_length
     len = (len / 5).round * 5
-  end until ((len - first_length).abs) >= min_diff and (len >= min_length) and (floor.length - len) % size.length >= min_length
+  end until ((len - first_length).abs) >= min_diff and (len >= min_length) and (floor.length - len) % plank_length >= min_length
   first_length = len
 
   row.add_plank(repository.get_plank(length: first_length, side: :left))
-  (row.space_left / size.length).floor.times { row.add_plank(factory.new_plank) }
+  (row.space_left / plank_length).floor.times { row.add_plank(factory.new_plank) }
   row.add_plank(repository.get_plank(length: row.space_left, side: :right))
 
   rows << row
@@ -97,24 +99,24 @@ Prawn::Document.generate('tiles.pdf', page_layout: floor.length > floor.width ? 
 
     rows.each do |row|
       x = 0
-      row.planks.each do |tile|
-        pdf.stroke_rectangle [x, y + tile.width], tile.length, tile.width
-        tile_text = case tile.cut
+      row.planks.each do |plank|
+        pdf.stroke_rectangle [x, y + plank.width], plank.length, plank.width
+        tile_text = case plank.cut
                     when :left
-                      "#{tile.number}R"
+                      "#{plank.number}R"
                     when :right
-                      "#{tile.number}L"
+                      "#{plank.number}L"
                     when :none
-                      "#{tile.number}"
+                      "#{plank.number}"
                     else
-                      "?#{tile.number}"
+                      "?#{plank.number}"
                     end
         begin
-          pdf.text_box tile_text, at: [x, y + tile.width], width: tile.length, valign: :center, height: tile.width, align: :center, size: 3.mm / scale_factor, overflow: :shrink_to_fit
+          pdf.text_box tile_text, at: [x, y + plank.width], width: plank.length, valign: :center, height: plank.width, align: :center, size: 3.mm / scale_factor, overflow: :shrink_to_fit
         rescue
           puts 'Some text could not be printed.'
         end
-        x += tile.length
+        x += plank.length
       end
       y += row.width
     end
