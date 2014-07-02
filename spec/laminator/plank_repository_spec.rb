@@ -31,9 +31,13 @@ describe Laminator::PlankRepository do
           expect(plank.length).to eq(143)
           expect(plank.cuts).to match_array([:left])
         end
+
+        it 'saves the cut plank for later review' do
+          expect(repository.cut_planks.count).to eq(1)
+          expect(repository.cut_planks.first).to be(plank)
+        end
       end
     end
-
 
     context 'when not empty' do
       before(:each) do
@@ -54,6 +58,15 @@ describe Laminator::PlankRepository do
         plank = repository.get_plank(length: 80, side: :right)
         expect(plank.number).to eq(2)
         expect(plank.length).to eq(80)
+      end
+
+      it 'puts planks with cuts on both sides in the wasted planks bucket' do
+        repository.get_plank(length: 190, side: :left)
+        expect(repository.wasted_planks.count).to eq(1)
+        expect(repository.planks.count).to eq(2)
+        plank = repository.wasted_planks.first
+        expect(plank.length).to eq(3)
+        expect(plank.cuts).to match_array([:left, :right])
       end
     end
   end

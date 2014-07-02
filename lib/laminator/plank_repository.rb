@@ -1,11 +1,15 @@
 module Laminator
   class PlankRepository
     attr_reader :planks
+    attr_reader :cut_planks
+    attr_reader :wasted_planks
 
     def initialize(factory:, kerf: 0)
       @kerf = kerf
       @factory = factory
       @planks = []
+      @cut_planks = []
+      @wasted_planks = []
     end
 
     def get_plank(length:, side: nil)
@@ -19,8 +23,12 @@ module Laminator
 
     def put_plank(plank)
       if not plank.nil? and plank.length > 0
-        @planks << plank
-        @planks.sort! { |l, r| l.length <=> r.length }
+        if plank.cuts.size < 2
+          @planks << plank
+          @planks.sort! { |l, r| l.length <=> r.length }
+        else
+          @wasted_planks << plank
+        end
       end
     end
 
@@ -32,6 +40,7 @@ module Laminator
 
     def cut_plank(plank, max_length, side)
       put_plank(plank.make_cut(length: max_length, side: side, kerf: @kerf))
+      @cut_planks << plank if not plank.cuts.empty?
       plank
     end
   end
