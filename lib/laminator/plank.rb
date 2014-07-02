@@ -32,7 +32,7 @@ module Laminator
       @cuts.include?(:left)
     end
 
-    def make_cut(length:, side:, kerf:)
+    def make_cut(length:, side:, kerf: 0)
       return nil if length >= @length
       remaining_length = @length - length - kerf
       remaining_cuts = Set.new(@cuts) << (side == :left ? :right : :left)
