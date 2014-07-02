@@ -8,7 +8,7 @@ module Laminator
       @planks = []
     end
 
-    def get_plank(length:, side: Set.new())
+    def get_plank(length:, side: nil)
       plank = existing_or_new(@planks.find { |p| p.length >= length and p.is_placeable_on?(side) })
       cut_plank(plank, length, side)
     end

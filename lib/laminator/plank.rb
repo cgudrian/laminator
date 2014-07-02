@@ -1,5 +1,3 @@
-require 'set'
-
 module Laminator
   class Plank
     attr_reader :number
@@ -7,7 +5,7 @@ module Laminator
     attr_reader :length
     attr_reader :cuts
 
-    def initialize(number:, length:, width:, cuts: Set.new())
+    def initialize(number:, length:, width:, cuts: [])
       @number = number
       @length = Float(length)
       @width = Float(width)
@@ -35,7 +33,7 @@ module Laminator
     def make_cut(length:, side:, kerf: 0)
       return nil if length >= @length
       remaining_length = @length - length - kerf
-      remaining_cuts = Set.new(@cuts) << (side == :left ? :right : :left)
+      remaining_cuts = (@cuts + [side == :left ? :right : :left]).uniq
       @length = length
       @cuts << side
       Plank.new(number: @number, length: remaining_length, width: @width, cuts: remaining_cuts)

@@ -21,7 +21,7 @@ describe Laminator::PlankRepository do
 
         it 'gets a new plank from the repository cut to the correct size' do
           expect(plank.length).to eq(350)
-          expect(plank.cuts).to eq(Set.new([:right]))
+          expect(plank.cuts).to match_array([:right])
           expect(plank.number).to eq(1)
         end
 
@@ -29,7 +29,7 @@ describe Laminator::PlankRepository do
           expect(repository.planks.count).to eq(1)
           plank = repository.planks.first
           expect(plank.length).to eq(143)
-          expect(plank.cuts).to eq(Set.new([:left]))
+          expect(plank.cuts).to match_array([:left])
         end
       end
     end
@@ -37,9 +37,9 @@ describe Laminator::PlankRepository do
 
     context 'when not empty' do
       before(:each) do
-        repository.put_plank(Laminator::Plank.new(number: 1, length: 300, width: 100, cuts: Set.new([:right])))
-        repository.put_plank(Laminator::Plank.new(number: 2, length: 100, width: 100, cuts: Set.new([:right])))
-        repository.put_plank(Laminator::Plank.new(number: 3, length: 200, width: 100, cuts: Set.new([:left])))
+        repository.put_plank(Laminator::Plank.new(number: 1, length: 300, width: 100, cuts: [:right]))
+        repository.put_plank(Laminator::Plank.new(number: 2, length: 100, width: 100, cuts: [:right]))
+        repository.put_plank(Laminator::Plank.new(number: 3, length: 200, width: 100, cuts: [:left]))
       end
 
       it 'yields the smallest possible plank cut to the desired length' do

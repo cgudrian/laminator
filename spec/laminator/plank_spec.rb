@@ -17,15 +17,15 @@ describe Laminator::Plank do
     end
 
     it 'leaves two planks cut on opposite sides' do
-      expect(cut_plank.cuts).to eq(Set.new([:left]))
-      expect(plank.cuts).to eq(Set.new([:right]))
+      expect(cut_plank.cuts).to match_array([:left])
+      expect(plank.cuts).to match_array([:right])
     end
 
     context 'when called again on the oppsite side' do
       it 'yields one plank with cuts on both sides and one with a cut on one side' do
         plank = cut_plank.make_cut(length: 500, side: :right)
-        expect(cut_plank.cuts).to eq (Set.new([:left, :right]))
-        expect(plank.cuts).to eq(Set.new([:left]))
+        expect(cut_plank.cuts).to match_array([:right, :left])
+        expect(plank.cuts).to match_array([:left])
       end
     end
   end
