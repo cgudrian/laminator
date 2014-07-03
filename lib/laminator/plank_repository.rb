@@ -18,7 +18,7 @@ module Laminator
     end
 
     def inspect
-      @planks.map(&:inspect)
+      { planks: @planks.map(&:inspect), waste: @wasted_planks.map(&:inspect) }
     end
 
     def put_plank(plank)
