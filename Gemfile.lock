@@ -70,6 +70,7 @@ GEM
     simplecov-html (0.8.0)
     thread_safe (0.3.4)
     ttfunk (1.2.0)
+    yard (0.8.7.4)
 
 PLATFORMS
   ruby
@@ -81,3 +82,4 @@ DEPENDENCIES
   rdoc (~> 3.12)
   rspec (~> 3.0)
   simplecov (~> 0.8)
+  yard

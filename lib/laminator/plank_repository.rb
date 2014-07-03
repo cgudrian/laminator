@@ -39,7 +39,7 @@ module Laminator
     end
 
     def cut_plank(plank, max_length, side)
-      put_plank(plank.make_cut(length: max_length, side: side, kerf: @kerf))
+      put_plank(plank.make_cut!(length: max_length, side: side, kerf: @kerf))
       @cut_planks << plank if not plank.cuts.empty?
       plank
     end
