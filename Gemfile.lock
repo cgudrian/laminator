@@ -50,7 +50,7 @@ GEM
       pdf-core (~> 0.7.0)
       ttfunk (~> 1.5)
     psych (3.0.2)
-    rack (2.0.4)
+    rack (2.2.2)
     rake (13.0.1)
     rdoc (3.12.2)
       json (~> 1.4)
