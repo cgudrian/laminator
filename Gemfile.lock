@@ -52,7 +52,7 @@ GEM
       ttfunk (~> 1.5)
     psych (3.0.2)
     racc (1.5.2)
-    rack (2.2.3)
+    rack (2.2.6.2)
     rake (13.0.1)
     rdoc (6.3.1)
     rspec (3.7.0)
